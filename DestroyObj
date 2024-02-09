@@ -1,0 +1,42 @@
+public class DestroyObj : MonoBehaviour
+{
+    private Camera mainCamera;
+
+    private void Start()
+    {
+        mainCamera = GetComponent<Camera>();
+        if (mainCamera == null)
+        {
+            Debug.LogError("Script requires a Camera component!");
+            return;
+        }
+    }
+
+    private void Update()
+    {
+        if (mainCamera == null)
+        {
+            return;
+        }
+
+        Vector3 cameraBoundsMin = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, mainCamera.nearClipPlane));
+        Vector3 cameraBoundsMax = mainCamera.ViewportToWorldPoint(new Vector3(1, 1, mainCamera.nearClipPlane));
+
+        GameObject[] allObjects = FindObjectsOfType<GameObject>();
+
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj != gameObject && !ObjectIsWithinCameraBounds(obj.transform.position, cameraBoundsMin, cameraBoundsMax))
+            {
+                Destroy(obj);
+            }
+        }
+    }
+
+    private bool ObjectIsWithinCameraBounds(Vector3 objectPosition, Vector3 boundsMin, Vector3 boundsMax)
+    {
+        return (objectPosition.x >= boundsMin.x && objectPosition.x <= boundsMax.x &&
+                objectPosition.y >= boundsMin.y && objectPosition.y <= boundsMax.y &&
+                objectPosition.z >= boundsMin.z && objectPosition.z <= boundsMax.z);
+    }
+}
